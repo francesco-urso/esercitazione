@@ -4,30 +4,40 @@ import org.example.usermanagement.InvalidUserException;
 import org.example.usermanagement.Logger;
 import org.example.usermanagement.Role;
 import org.example.usermanagement.User;
+import org.example.usermanagement.UserService;
 
 import java.util.*;
+
+import static org.example.usermanagement.UserService.*;
 
 public class Main {
     public static void main(String[] args) {
         Logger logger = Logger.getInstance();
 
-        User u1 = new User(1L, "Mario", "mario@email.com", Role.USER);
-        User u2 = new User(2L, "Giulia", "giulia@email.com", Role.ADMIN);
-        User u3 = new User(1L, "Mario", "mario@email.com", Role.USER);
-        User u4 = new User(1L, "Mario", "marioemail.com", Role.USER);
+        List<User> users = new ArrayList<>(UserService.getAllUser());
 
-        List<User> users = new ArrayList<>();
-        users.add(u1);
-        users.add(u2);
-        users.add(u3);
+        System.out.println("Utente");
+        Optional<User> maybeUser = findUserById(3L);
+        maybeUser.ifPresentOrElse(
+                u -> System.out.println("Trovato: " + u.getUsername()),
+                () -> System.out.println("Utente non trovato!")
+        );
+
+        System.out.println("Moderatori: ");
+        UserService.getUserForRole(Role.MODERATOR);
+
+        System.out.println("Ordine email: ");
+        UserService.orderEmail(users);
 
         Set<User> uniqueUsers = new HashSet<>(users);
         logger.log("Utenti unici: " + uniqueUsers.size());
 
+        // test errore su email user
         try{
-            checkUser(u1);
+            User e1 = new User(1L, "FakeUserError", "emailerror.com", Role.ADMIN);
+            checkUser(e1);
         } catch (InvalidUserException e) {
-            logger.log("Errore" + e.getMessage());
+            logger.log("Errore " + e.getMessage());
         }
     }
 
